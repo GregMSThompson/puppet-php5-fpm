@@ -8,25 +8,31 @@
 #	- php5-fpm.conf.erb
 #
 class php5-fpm {
+    include php5-fpm::sourcekeys, php5-fpm::sources
 
-	package { php5-fpm: ensure => installed	}
+	package { php5-fpm: 
+        ensure => installed,	
+        require => Class["php5-fpm::sources"],
+    }
 
 	service { php5-fpm:
 		ensure => running,
-		enable => true,
+        hasstatus => true,
+        hasrestart => true,
 		require => File["/etc/php5/fpm/php5-fpm.conf"],
 	}
 
-	file{"/etc/php5/fpm/php5-fpm.conf":
+	file{ "/etc/php5/fpm/php5-fpm.conf":
 		ensure => present,
 		owner	=> root,
 		group	=> root,
 		mode	=> 644,
 		content => template("php5-fpm/php5-fpm.conf.erb"),
 		require => Package["php5-fpm"],
+        notify => Service["php5-fpm"],
 	}
 
-	file{"/etc/php5/fpm/fpm.d":
+	file{ "/etc/php5/fpm/fpm.d":
 		ensure => directory,
 		checksum => mtime,
 		owner	=> root,
@@ -34,12 +40,6 @@ class php5-fpm {
 		mode	=> 644,
 		require => Package["php5-fpm"],
 	}
-
-	exec{"reload-php5-fpm":
-		command => "/etc/init.d/php5-fpm reload",
-                refreshonly => true,
-		require => File["/etc/php5/fpm/php5-fpm.conf"],
-        }
 
 	# Define : php5-fpm::config
 	#
@@ -61,22 +61,20 @@ class php5-fpm {
 	#		content	=> template("php5-fpm/fpm.d/www-pool.conf.erb"),
 	#	}
 	#	
-        define config ( $ensure = 'present', $content = '', $order="500") {
-		$real_content = $content ? { 
-			'' => template("php5-fpm/fpm.d/${name}.conf.erb"),
-	    		default => $content,
-	  	}
-
-		file { "/etc/php5/fpm/fpm.d/${order}-${name}.conf":
-			ensure => $ensure,
-			content => $real_content,
-			mode => 644,
-			owner => root,
-			group => root,
-			notify => Exec["reload-php5-fpm"],
-			before => Service["php5-fpm"],
-		}
+    define config ( $ensure = 'present', $content = '', $order="500") {
+        $real_content = $content ? { 
+            '' => template("php5-fpm/fpm.d/${name}.conf.erb"),
+                default => $content,
         }
+
+        file { "/etc/php5/fpm/fpm.d/${order}-${name}.conf":
+            ensure => $ensure,
+            content => $real_content,
+            mode => 644,
+            owner => root,
+            group => root,
+            require => Package["php5-fpm"],
+            notify => Service["php5-fpm"],
+        }
+    }
 }
-
-
