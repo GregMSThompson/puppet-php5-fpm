@@ -9,12 +9,12 @@ class php5-fpm::sources {
         mode => 0644,
     }
 
-    exec { "install-s3source": 
+    exec { "install-php5-fpm": 
         path => "/usr/bin",
         command => "apt-get update -y",
         logoutput => false,
         refreshonly => true,
-        subscribe => File["/etc/apt/sources.list.d/s3tools.list"],
+        subscribe => File["/etc/apt/sources.list.d/brianmercer-php-lucid.list"],
         require => $require,
     }
 }
