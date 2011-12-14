@@ -3,7 +3,7 @@ class php5-fpm::sources {
     $require = Class["php5-fpm::sourcekeys"]
 
     file { "/etc/apt/sources.list.d/brianmercer-php-lucid.list":
-        source => "puppet:///mysql/brianmercer-php-lucid.list",
+        source => "puppet:///php5-fpm/brianmercer-php-lucid.list",
         owner => "root",
         group => "root",
         mode => 0644,
