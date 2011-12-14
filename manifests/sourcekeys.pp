@@ -1,10 +1,12 @@
 # install apt keys to verify package content as authentic
 class php5-fpm::sourcekeys {
-    file { "/usr/share/apt-keys":
-        ensure => "directory",
-        owner => "root",
-        group => "root",
-        mode => 0751,
+    if !defined(File["/usr/share/apt-keys"]) {
+        file { "/usr/share/apt-keys":
+            ensure => "directory",
+            owner => "root",
+            group => "root",
+            mode => 0751,
+        }
     }
 
     file { "/usr/share/apt-keys/brianmercer-php-lucid.key":
