@@ -10,7 +10,7 @@ class php5-fpm::sources {
     }
 
     exec { "install-php5-fpm": 
-        path => "/usr/bin",
+        path => "/usr/bin:/bin",
         command => "apt-get update -y",
         logoutput => false,
         refreshonly => true,
